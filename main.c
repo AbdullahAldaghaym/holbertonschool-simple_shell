@@ -7,6 +7,7 @@
  *
  * Return: Always 0 (Success)
  */
+extern char **environ;
 int main(int ac, char **av)
 {
 	char *buffer = NULL;
