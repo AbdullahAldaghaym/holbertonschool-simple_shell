@@ -16,4 +16,3 @@
 int main(int argc, char **argv);
 
 #endif /* SIMPLE_SHELL_H */
-

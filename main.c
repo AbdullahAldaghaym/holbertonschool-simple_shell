@@ -7,16 +7,27 @@
  */
 int main(void)
 {
-    /* نسوي لوب لا نهائي عشان الشل يضل شغال */
-    while (1)
-    {
-        /* نطبع العلامة بس لو كنا في الوضع التفاعلي */
-        if (isatty(STDIN_FILENO))
-            write(STDOUT_FILENO, "$ ", 2);
+	char *buffer = NULL;
+	size_t n = 0;
+	ssize_t read;
 
-        /* هنا بنضيف كود القراءة والتنفيذ لاحقاً */
-        break; /* مؤقتاً نكسر اللوب عشان ما يعلق */
-    }
+	while (1)
+	{
+		if (isatty(STDIN_FILENO))
+			write(STDOUT_FILENO, "$ ", 2);
 
-    return (0);
+		read = getline(&buffer, &n, stdin);
+
+		if (read == -1)
+		{
+			free(buffer);
+			exit(0);
+		}
+
+		if (buffer[read - 1] == '\n')
+			buffer[read - 1] = '\0';
+	}
+
+	free(buffer);
+	return (0);
 }
