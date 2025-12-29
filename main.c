@@ -8,14 +8,16 @@
 
 extern char **environ;
 
-int main(void)
+int main(int ac, char **av)
 {
 	char *buffer = NULL;
 	size_t n = 0;
 	ssize_t read;
-	char *argv[2]; 
+	char *args[2];
 	pid_t child_pid;
 	int status;
+
+	(void)ac;
 
 	while (1)
 	{
@@ -32,22 +34,21 @@ int main(void)
 		if (buffer[read - 1] == '\n')
 			buffer[read - 1] = '\0';
 
-		argv[0] = buffer;
-		argv[1] = NULL;
+		args[0] = buffer;
+		args[1] = NULL;
 
 		child_pid = fork();
-
 		if (child_pid == -1)
 		{
-			perror("Error:");
+			perror("Error");
 			return (1);
 		}
-
 		if (child_pid == 0)
 		{
-			if (execve(argv[0], argv, environ) == -1)
+			if (execve(args[0], args, environ) == -1)
 			{
-				perror("./shell"); 
+
+				perror(av[0]);
 			}
 			exit(0);
 		}
