@@ -1,17 +1,22 @@
 #include "simple_shell.h"
 
 /**
- * main - entry point for the simple shell.
- * @argc: argument count.
- * @argv: argument vector.
+ * main - Simple Shell main function
  *
- * Return: Always 0.
+ * Return: Always 0
  */
-int main(int argc, char **argv)
+int main(void)
 {
-	(void)argc;
-	(void)argv;
+    /* نسوي لوب لا نهائي عشان الشل يضل شغال */
+    while (1)
+    {
+        /* نطبع العلامة بس لو كنا في الوضع التفاعلي */
+        if (isatty(STDIN_FILENO))
+            write(STDOUT_FILENO, "$ ", 2);
 
-	return (0);
+        /* هنا بنضيف كود القراءة والتنفيذ لاحقاً */
+        break; /* مؤقتاً نكسر اللوب عشان ما يعلق */
+    }
+
+    return (0);
 }
-
