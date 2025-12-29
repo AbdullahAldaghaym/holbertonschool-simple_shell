@@ -1,16 +1,16 @@
 #include "simple_shell.h"
 
 /**
- * main - Simple Shell main function
+ * main - Main loop for the simple shell
+ * @ac: Argument count
+ * @av: Argument vector
  *
- * Return: Always 0
+ * Return: Always 0 (Success)
  */
-
-extern char **environ;
-
 int main(int ac, char **av)
 {
 	char *buffer = NULL;
+	char *command;
 	size_t n = 0;
 	ssize_t read;
 	char *args[2];
@@ -31,10 +31,18 @@ int main(int ac, char **av)
 			exit(0);
 		}
 
+		/* Remove newline character */
 		if (buffer[read - 1] == '\n')
 			buffer[read - 1] = '\0';
 
-		args[0] = buffer;
+		/* Tokenize the input to handle spaces */
+		command = strtok(buffer, " \t");
+
+		/* Handle empty commands or spaces only */
+		if (command == NULL)
+			continue;
+
+		args[0] = command;
 		args[1] = NULL;
 
 		child_pid = fork();
@@ -46,10 +54,7 @@ int main(int ac, char **av)
 		if (child_pid == 0)
 		{
 			if (execve(args[0], args, environ) == -1)
-			{
-
 				perror(av[0]);
-			}
 			exit(0);
 		}
 		else
