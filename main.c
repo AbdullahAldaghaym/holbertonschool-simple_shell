@@ -22,7 +22,9 @@ int main(int argc, char **argv, char **envp)
 	int interactive;
 	pid_t pid;
 	int status;
-	char *command;
+	char *token;
+	char *args[64];
+	int i;
 
 	(void)argc;
 	interactive = isatty(STDIN_FILENO);
@@ -43,9 +45,19 @@ int main(int argc, char **argv, char **envp)
 		if (nread > 0 && line[nread - 1] == '\n')
 			line[nread - 1] = '\0';
 
-		/* Get first word only, ignore extra spaces */
-		command = strtok(line, " \t\r\n");
-		if (command == NULL)
+		/* Tokenize line into args[] */
+		i = 0;
+		token = strtok(line, " \t\r\n");
+		while (token != NULL && i < 63)
+		{
+			args[i] = token;
+			i++;
+			token = strtok(NULL, " \t\r\n");
+		}
+		args[i] = NULL;
+
+		/* Empty/whitespace-only line */
+		if (args[0] == NULL)
 			continue;
 
 		pid = fork();
@@ -57,12 +69,7 @@ int main(int argc, char **argv, char **envp)
 
 		if (pid == 0)
 		{
-			char *exec_argv[2];
-
-			exec_argv[0] = command;
-			exec_argv[1] = NULL;
-
-			if (execve(command, exec_argv, envp) == -1)
+			if (execve(args[0], args, envp) == -1)
 			{
 				perror(argv[0]);
 				exit(127);
