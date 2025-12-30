@@ -1,68 +1,76 @@
 #include "simple_shell.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 
 /**
- * main - Main loop for the simple shell
- * @ac: Argument count
- * @av: Argument vector
+ * main - entry point for the simple shell.
+ * @argc: argument count.
+ * @argv: argument vector.
+ * @envp: environment variables.
  *
- * Return: Always 0 (Success)
+ * Return: Always 0.
  */
-extern char **environ;
-int main(int ac, char **av)
+int main(int argc, char **argv, char **envp)
 {
-	char *buffer = NULL;
-	char *command;
-	size_t n = 0;
-	ssize_t read;
-	char *args[2];
-	pid_t child_pid;
+	char *line = NULL;
+	size_t len = 0;
+	ssize_t nread;
+	int interactive;
+	pid_t pid;
 	int status;
+	char *command;
 
-	(void)ac;
+	(void)argc;
+	interactive = isatty(STDIN_FILENO);
 
 	while (1)
 	{
-		if (isatty(STDIN_FILENO))
-			write(STDOUT_FILENO, "$ ", 2);
+		if (interactive)
+			write(STDOUT_FILENO, "#cisfun$ ", 9);
 
-		read = getline(&buffer, &n, stdin);
-		if (read == -1)
+		nread = getline(&line, &len, stdin);
+		if (nread == -1)
 		{
-			free(buffer);
-			exit(0);
+			if (interactive)
+				write(STDOUT_FILENO, "\n", 1);
+			break;
 		}
 
-		/* Remove newline character */
-		if (buffer[read - 1] == '\n')
-			buffer[read - 1] = '\0';
+		if (nread > 0 && line[nread - 1] == '\n')
+			line[nread - 1] = '\0';
 
-		/* Tokenize the input to handle spaces */
-		command = strtok(buffer, " \t");
-
-		/* Handle empty commands or spaces only */
-		if (command == NULL)
+		if (line[0] == '\0')
 			continue;
 
-		args[0] = command;
-		args[1] = NULL;
+		command = line;
 
-		child_pid = fork();
-		if (child_pid == -1)
+		pid = fork();
+		if (pid == -1)
 		{
-			perror("Error");
-			return (1);
+			perror(argv[0]);
+			continue;
 		}
-		if (child_pid == 0)
+
+		if (pid == 0)
 		{
-			if (execve(args[0], args, environ) == -1)
-				perror(av[0]);
-			exit(0);
+			char *exec_argv[2];
+
+			exec_argv[0] = command;
+			exec_argv[1] = NULL;
+
+			if (execve(command, exec_argv, envp) == -1)
+			{
+				perror(argv[0]);
+				exit(127);
+			}
 		}
 		else
-		{
 			wait(&status);
-		}
 	}
-	free(buffer);
+
+	free(line);
 	return (0);
 }
