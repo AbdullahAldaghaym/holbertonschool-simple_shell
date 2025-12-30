@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <string.h>
 
 /**
  * main - entry point for the simple shell.
@@ -42,10 +43,10 @@ int main(int argc, char **argv, char **envp)
 		if (nread > 0 && line[nread - 1] == '\n')
 			line[nread - 1] = '\0';
 
-		if (line[0] == '\0')
+		/* Get first word only, ignore extra spaces */
+		command = strtok(line, " \t\r\n");
+		if (command == NULL)
 			continue;
-
-		command = line;
 
 		pid = fork();
 		if (pid == -1)
@@ -68,7 +69,9 @@ int main(int argc, char **argv, char **envp)
 			}
 		}
 		else
+		{
 			wait(&status);
+		}
 	}
 
 	free(line);
