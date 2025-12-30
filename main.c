@@ -12,6 +12,7 @@ extern char **environ;
 
 char *find_in_path(char *cmd);
 void print_not_found(char *prog_name, int cmd_count, char *cmd);
+void print_env(void);
 
 /**
  * main - entry point for the simple shell.
@@ -57,7 +58,7 @@ int main(int argc, char **argv, char **envp)
 		if (nread > 0 && line[nread - 1] == '\n')
 			line[nread - 1] = '\0';
 
-		/* Tokenize into args[] */
+		/* Tokenize input */
 		i = 0;
 		token = strtok(line, " \t\r\n");
 		while (token != NULL && i < MAX_ARGS - 1)
@@ -71,17 +72,24 @@ int main(int argc, char **argv, char **envp)
 		if (args[0] == NULL)
 			continue;
 
-		/* built-in: exit (no args for now) */
+		/* built-in: exit */
 		if (strcmp(args[0], "exit") == 0)
 		{
 			free(line);
 			return (last_status);
 		}
 
+		/* built-in: env */
+		if (strcmp(args[0], "env") == 0)
+		{
+			print_env();
+			continue;
+		}
+
 		cmd_count++;
 		cmd_path = NULL;
 
-		/* Case 1: contains '/' -> use as-is */
+		/* If command has '/', treat as path */
 		if (strchr(args[0], '/') != NULL)
 		{
 			if (access(args[0], X_OK) == 0)
@@ -93,14 +101,14 @@ int main(int argc, char **argv, char **envp)
 				continue;
 			}
 		}
-		else /* Case 2: search PATH */
+		else /* Search PATH */
 		{
 			cmd_path = find_in_path(args[0]);
 			if (cmd_path == NULL)
 			{
 				print_not_found(argv[0], cmd_count, args[0]);
 				last_status = 127;
-				continue; /* DO NOT fork if not found */
+				continue;
 			}
 		}
 
@@ -150,10 +158,10 @@ int main(int argc, char **argv, char **envp)
 }
 
 /**
- * find_in_path - search for a command in the PATH
+ * find_in_path - search for a command in PATH dirs
  * @cmd: command name
  *
- * Return: malloc'ed full path to command, or NULL if not found
+ * Return: malloc'ed full path or NULL
  */
 char *find_in_path(char *cmd)
 {
@@ -185,7 +193,6 @@ char *find_in_path(char *cmd)
 	while (dir != NULL)
 	{
 		len_dir = strlen(dir);
-
 		full_path = malloc(len_dir + 1 + len_cmd + 1);
 		if (!full_path)
 		{
@@ -212,14 +219,23 @@ char *find_in_path(char *cmd)
 }
 
 /**
- * print_not_found - print "not found" error like /bin/sh
- * @prog_name: name of the shell program (argv[0])
- * @cmd_count: number of the command in this session
- * @cmd: the command that was not found
- *
- * Return: void
+ * print_not_found - prints "not found" error like sh
+ * @prog_name: shell name
+ * @cmd_count: command number
+ * @cmd: command
  */
 void print_not_found(char *prog_name, int cmd_count, char *cmd)
 {
 	fprintf(stderr, "%s: %d: %s: not found\n", prog_name, cmd_count, cmd);
+}
+
+/**
+ * print_env - prints environment variables
+ */
+void print_env(void)
+{
+	int i;
+
+	for (i = 0; environ[i] != NULL; i++)
+		printf("%s\n", environ[i]);
 }
