@@ -71,6 +71,13 @@ int main(int argc, char **argv, char **envp)
 		if (args[0] == NULL)
 			continue;
 
+		/* built-in: exit (no args for now) */
+		if (strcmp(args[0], "exit") == 0)
+		{
+			free(line);
+			return (last_status);
+		}
+
 		cmd_count++;
 		cmd_path = NULL;
 
