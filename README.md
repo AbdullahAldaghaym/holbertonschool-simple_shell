@@ -274,9 +274,19 @@ View the manual page:
 man ./man_1_simple_shell
 ```
 
-## Authors 👥
+## 👥 Authors
 
-See the [AUTHORS](AUTHORS) file for a list of contributors to this project.
+<div align="center">
+
+### **Project Developers**
+
+| **Mustafa Alalmi** | **Abdullah Aldaghaym** |
+|:----------------:|:----------------------:|
+| [![GitHub](https://img.shields.io/badge/📁_GitHub-Profile-black?style=for-the-badge&logo=github)](https://github.com/i1SaSa) | [![GitHub](https://img.shields.io/badge/📁_GitHub-Profile-black?style=for-the-badge&logo=github)](https://github.com/abdullahaldaghaym) |
+| **C Developer** | **C Developer** |
+
+</div>
+
 
 ## Resources 📚
 
