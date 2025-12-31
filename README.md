@@ -1,5 +1,20 @@
 # Simple Shell 🐚
 
+<p align="center">
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/linux/linux-original.svg" width="120">
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Language-C-blue.svg">
+  <img src="https://img.shields.io/badge/System-UNIX-orange.svg">
+  <img src="https://img.shields.io/badge/Shell-Interpreter-success.svg">
+</p>
+
+<p align="center">
+  <strong>A lightweight UNIX shell written in C.</strong><br>
+  <em>Developed as part of a low-level programming curriculum.</em>
+</p>
+
 A simple UNIX command line interpreter - Holberton School Project
 
 ## Description 📝
