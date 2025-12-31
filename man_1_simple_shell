@@ -1,1 +1,298 @@
-g
+.TH HSH 1 "December 2024" "Version 1.0" "Simple Shell Manual"
+
+.SH NAME
+hsh \- simple UNIX command line interpreter
+
+.SH SYNOPSIS
+.B hsh
+.RI [ command_string
+|
+.IR file ]
+
+.SH DESCRIPTION
+.B hsh
+is a simple UNIX command line interpreter that reads commands from either standard input or from a file and executes them. It is a simplified version of the standard UNIX shell and implements a subset of its features.
+
+The shell operates in both interactive and non-interactive modes. In interactive mode, it displays a prompt and waits for user input. In non-interactive mode, it reads and executes commands from a file or standard input without displaying a prompt.
+
+.SH INVOCATION
+The shell can be invoked in the following ways:
+
+.TP
+.B Interactive mode:
+.nf
+$ ./hsh
+($) command [arguments]
+.fi
+
+.TP
+.B Non-interactive mode:
+.nf
+$ echo "command" | ./hsh
+$ ./hsh < file
+.fi
+
+.SH COMMAND EXECUTION
+When a command is entered, the shell performs the following steps:
+
+.IP 1. 4
+Reads the input from standard input using getline()
+.IP 2. 4
+Tokenizes the input string into command and arguments
+.IP 3. 4
+Searches for the command in the PATH environment variable
+.IP 4. 4
+Creates a child process using fork()
+.IP 5. 4
+Executes the command using execve()
+.IP 6. 4
+Waits for the child process to complete
+
+.SH BUILT-IN COMMANDS
+The following built-in commands are supported:
+
+.TP
+.B exit [status]
+Exit the shell with an optional exit status. If no status is provided, the shell exits with the status of the last executed command.
+
+.TP
+.B env
+Print the current environment variables.
+
+.SH COMMAND SYNTAX
+Commands can be specified in the following formats:
+
+.TP
+.B command
+Execute a command found in PATH
+.br
+Example: ls, pwd, echo
+
+.TP
+.B /path/to/command
+Execute a command using absolute path
+.br
+Example: /bin/ls, /usr/bin/env
+
+.TP
+.B command arguments
+Execute a command with arguments
+.br
+Example: ls -la, echo "Hello World"
+
+.SH ENVIRONMENT
+The shell uses the following environment variables:
+
+.TP
+.B PATH
+A colon-separated list of directories in which the shell looks for commands. If a command does not contain a slash, the shell searches each directory in PATH for an executable file with that name.
+
+.TP
+.B HOME
+The current user's home directory.
+
+.TP
+.B PWD
+The current working directory.
+
+.SH EXIT STATUS
+The shell returns the exit status of the last executed command. The exit status is a number between 0 and 255, where:
+
+.TP
+.B 0
+Success
+
+.TP
+.B 1-125
+Command failed with an error
+
+.TP
+.B 126
+Command found but not executable
+
+.TP
+.B 127
+Command not found
+
+.SH EXAMPLES
+.TP
+.B Interactive mode:
+.nf
+$ ./hsh
+($) ls -l
+total 100
+-rw-rw-r-- 1 user user 1234 Dec 31 10:00 main.c
+($) pwd
+/home/user/simple_shell
+($) echo "Hello, World!"
+Hello, World!
+($) exit
+$
+.fi
+
+.TP
+.B Non-interactive mode:
+.nf
+$ echo "/bin/ls" | ./hsh
+main.c shell.c hsh
+$ echo "pwd" | ./hsh
+/home/user/simple_shell
+.fi
+
+.TP
+.B Using absolute paths:
+.nf
+($) /bin/echo "Testing"
+Testing
+($) /usr/bin/env
+PATH=/usr/local/bin:/usr/bin:/bin
+HOME=/home/user
+...
+.fi
+
+.TP
+.B Built-in commands:
+.nf
+($) env
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin
+USER=user
+HOME=/home/user
+($) exit 0
+$
+.fi
+
+.SH ERROR HANDLING
+The shell handles errors and prints appropriate messages to stderr:
+
+.TP
+.B Command not found:
+.nf
+($) invalid_command
+./hsh: 1: invalid_command: not found
+.fi
+
+.TP
+.B Permission denied:
+.nf
+($) /root/private_file
+./hsh: 1: /root/private_file: Permission denied
+.fi
+
+.TP
+.B No such file or directory:
+.nf
+($) /bin/nonexistent
+./hsh: 1: /bin/nonexistent: No such file or directory
+.fi
+
+.SH SIGNALS
+The shell handles the following signals:
+
+.TP
+.B SIGINT (Ctrl+C)
+Does not exit the shell, displays a new prompt
+
+.TP
+.B EOF (Ctrl+D)
+Exits the shell gracefully
+
+.SH FILES
+.TP
+.I /bin/sh
+The standard UNIX shell, which this program emulates
+
+.TP
+.I ~/.bashrc
+User configuration file (not used by this shell)
+
+.SH LIMITATIONS
+This simple shell does NOT support:
+
+.IP \[bu] 2
+Piping (|)
+.IP \[bu]
+Redirections (>, <, >>)
+.IP \[bu]
+Logical operators (&&, ||)
+.IP \[bu]
+Command separators (;)
+.IP \[bu]
+Wildcard expansion (*, ?)
+.IP \[bu]
+Background processes (&)
+.IP \[bu]
+Aliases
+.IP \[bu]
+Variables and variable expansion
+.IP \[bu]
+Comments (#)
+.IP \[bu]
+Special characters (quotes, backticks)
+.IP \[bu]
+History
+.IP \[bu]
+Tab completion
+
+.SH COMPILATION
+Compile the shell with:
+.nf
+gcc -Wall -Werror -Wextra -pedantic -std=gnu89 *.c -o hsh
+.fi
+
+.SH SYSTEM CALLS
+The shell uses the following system calls and library functions:
+
+.TP
+.B execve(2)
+Execute a program
+
+.TP
+.B fork(2)
+Create a child process
+
+.TP
+.B wait(2), waitpid(2)
+Wait for process to change state
+
+.TP
+.B getline(3)
+Read a line from a stream
+
+.TP
+.B strtok(3)
+Tokenize strings
+
+.TP
+.B malloc(3), free(3)
+Allocate and free dynamic memory
+
+.TP
+.B stat(2)
+Get file status
+
+.TP
+.B access(2)
+Check user's permissions for a file
+
+.SH BUGS
+No known bugs at this time. Please report any bugs to the project repository.
+
+.SH AUTHORS
+Written by the contributors listed in the AUTHORS file.
+
+.SH SEE ALSO
+.BR sh (1),
+.BR bash (1),
+.BR execve (2),
+.BR fork (2),
+.BR wait (2),
+.BR getline (3)
+
+.SH COPYRIGHT
+This is free software: you are free to change and redistribute it.
+This program is part of the Holberton School curriculum.
+
+.SH NOTES
+This shell is designed for educational purposes as part of the Holberton School curriculum. It implements a minimal subset of shell functionality to demonstrate understanding of process management, system calls, and command line interpretation.
+
+For a full-featured shell, consider using bash, zsh, or other standard UNIX shells.
